@@ -1,13 +1,13 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
-public class imagenDeFondo extends JPanel{
+class ImagenDeFondo extends JPanel{
 
     ImageIcon imagen;
-    public imagenDeFondo(){
+    public ImagenDeFondo(){
     }
     public void paint(Graphics g){
-        imagen = new ImageIcon(getClass().getResource("resources/42.jpg"));
+        imagen = new ImageIcon(getClass().getResource("resources/fondo.jpg"));
         g.drawImage(imagen.getImage(),0,0,getWidth(),getHeight(),this);
         setOpaque(false);
         super.paint(g);

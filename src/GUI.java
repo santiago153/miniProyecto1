@@ -1,19 +1,25 @@
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 public class GUI extends JFrame {
 
-    private JButton lanzar;
-    private imagenDeFondo fondo;
+    private int clicslanzar=0;
+    private GeekOutMaster juego;
 
-    private JPanel contenedorDadosActivos, contenedorDadosInactivos, contenedorTarjetaPuntiacion, contenedorDadosUtilizados, contenedor1, contenedor2;
+    private JPanel contenedorDadosActivos;
+    private JPanel contenedorDadosInactivos;
+    private JPanel contenedorDadosUtilizados;
+
     public GUI(){
         initGui();
 
         this.setTitle("Craps");
         this.setSize(1100, 700);
-        //this.pack();
         this.setResizable(false);
         this.setVisible(true);
         this.setLocationRelativeTo(null);
@@ -23,25 +29,24 @@ public class GUI extends JFrame {
 
     public void initGui(){
 
-        Dado dado1 = new Dado();
-        Dado dado2 = new Dado();
-        Dado dado3 = new Dado();
-        Dado dado4 = new Dado();
-        Dado dado5 = new Dado();
-        Dado dado6 = new Dado();
-        Dado dado7 = new Dado();
-        Dado dado8 = new Dado();
-        Dado dado9 = new Dado();
-        Dado dado10 = new Dado();
 
-        lanzar = new JButton("lanzar");
-        fondo = new imagenDeFondo();
+        ImageIcon imagenFondo = new ImageIcon(getClass().getResource("resources/tablaDePuntuacion.png"));
+        JLabel labelFondo = new JLabel(imagenFondo);
+        labelFondo.setBounds(0, 0, 500, 300);
 
-        contenedor1 = new JPanel();
+
+
+        juego = new GeekOutMaster();
+
+        JButton lanzar = new JButton("lanzar");
+
+        ImagenDeFondo fondo = new ImagenDeFondo();
+
+        JPanel contenedor1 = new JPanel();
         contenedor1.setSize(1000,340);
         contenedor1.setOpaque(false);
 
-        contenedor2 = new JPanel();
+        JPanel contenedor2 = new JPanel();
         contenedor2.setSize(1000,340);
         contenedor2.setOpaque(false);
 
@@ -49,25 +54,101 @@ public class GUI extends JFrame {
         contenedorDadosActivos.setOpaque(false);
         contenedorDadosActivos.setPreferredSize(new Dimension(500,300));
         contenedorDadosActivos.setBorder(BorderFactory.createTitledBorder("MIS DADOS ACTIVOS"));
+        //contenedorDadosActivos.setLayout(null);
+        /*contenedorDadosActivos.add(dado1.convertirABoton());
+         */
+
 
         contenedorDadosInactivos = new JPanel();
         contenedorDadosInactivos.setOpaque(false);
         contenedorDadosInactivos.setPreferredSize(new Dimension(500,300));
         contenedorDadosInactivos.setBorder(BorderFactory.createTitledBorder("DADOS INACTIVOS"));
+        /*contenedorDadosInactivos.add(dado8.convertirABoton());
+         */
 
-        contenedorTarjetaPuntiacion = new JPanel();
+
+        JPanel contenedorTarjetaPuntiacion = new JPanel();
+        //contenedorTarjetaPuntiacion.setLayout(null);
         contenedorTarjetaPuntiacion.setOpaque(false);
         contenedorTarjetaPuntiacion.setPreferredSize(new Dimension(500,300));
         TitledBorder borde = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "TARJETA DE PUNTUACION");
         borde.setTitleColor(Color.magenta);
         contenedorTarjetaPuntiacion.setBorder(borde);
+        contenedorTarjetaPuntiacion.add(labelFondo);
+
 
         contenedorDadosUtilizados= new JPanel();
         contenedorDadosUtilizados.setOpaque(false);
         contenedorDadosUtilizados.setPreferredSize(new Dimension(500,300));
         contenedorDadosUtilizados.setBorder(BorderFactory.createTitledBorder("DADOS UTILIZADOS"));
 
+        //Esto sucede a el presionar por privera vez el boton lanzar  (se agregan los dados a el panel de activos)
+        lanzar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clicslanzar+=1;
+                if (clicslanzar==1) {
+                    juego.lanzarDados();
+                    //Se agregan y se muestran los dados en el panel de dados activos
+                    for (int i = 0; i < (juego.getDadosActivos()).size(); i++) {
+                        Dado unDado = (juego.getDadosActivos()).get(i);
+                        JButton unBoton = unDado.convertirABoton();
+                        //JButton unBoton = ((juego.getDadosActivos()).get(i)).convertirABoton();
+                        contenedorDadosActivos.add(unBoton);
+                        contenedorDadosActivos.revalidate();
+                        contenedorDadosActivos.repaint();
+
+
+                        String cara = unDado.getCaraActual();
+                        //agrego un listener a cada boton de dado creado
+                        //(((juego.getDadosActivos()).get(i)).getBoton()).addActionListener(new ActionListener() {
+                        unBoton.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+
+                                // Mover el botón del primer panel al segundo panel
+                                contenedorDadosActivos.remove(unBoton);
+                                contenedorDadosUtilizados.add(unBoton);
+
+                                // Actualizar la interfaz gráfica de usuario
+                                contenedorDadosActivos.revalidate();
+                                contenedorDadosActivos.repaint();
+                                contenedorDadosUtilizados.revalidate();
+                                contenedorDadosUtilizados.repaint();
+
+
+                                if (contenedorDadosUtilizados.getComponentCount() == 7) {
+                                    Component[] botones = contenedorDadosUtilizados.getComponents();
+                                    for (Component boton : botones) {
+                                        contenedorDadosUtilizados.remove(boton);
+                                        contenedorDadosActivos.add(boton);
+                                    }
+
+                                    // Actualizar la interfaz gráfica de usuario
+                                    contenedorDadosActivos.revalidate();
+                                    contenedorDadosActivos.repaint();
+                                    contenedorDadosUtilizados.revalidate();
+                                    contenedorDadosUtilizados.repaint();
+
+
+
+                                }
+                            }
+                        });
+
+                    }
+                    //Se agregan y se muestran los dados en el panel de Dados inactivos
+                    for (int i = 0; i < (juego.getDadosInactivos()).size(); i++) {
+                        contenedorDadosInactivos.add(((juego.getDadosInactivos()).get(i)).convertirABoton());
+                        contenedorDadosInactivos.revalidate();
+                        contenedorDadosInactivos.repaint();
+                    }
+                }
+            }
+        });
+
+        //contenedorDadosActivos.setLayout(new FlowLayout());
         contenedorDadosActivos.add(lanzar);
+        //lanzar.setBounds(100,100,100,1000);
 
         contenedor1.add(contenedorDadosActivos, BorderLayout.WEST);
         contenedor1.add(contenedorDadosInactivos, BorderLayout.EAST);
